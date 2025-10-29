@@ -3,8 +3,8 @@ import axios from 'axios';
 // 🌍 Determine base URL dynamically
 const API_BASE_URL =
   process.env.NODE_ENV === 'production'
-    ? process.env.REACT_APP_API_URL // Render backend
-    : 'http://localhost:5000/api';   // Local backend
+    ? process.env.REACT_APP_API_BASE_URL // Render backend
+    : 'http://localhost:5000/api';      // Local backend fallback
 
 // 🧩 Create axios instance
 const api = axios.create({
