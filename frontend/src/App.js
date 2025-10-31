@@ -14,19 +14,40 @@ import MonitoringView from './components/monitoring/MonitoringView';
 import CourseList from './components/courses/CourseList';
 import './App.css';
 
-// Component to handle authenticated routes - redirect to login if not authenticated
+// Component to handle authenticated routes
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
   }
   
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" replace />;
 };
 
-// Component for public routes that show to everyone
+// Component for public routes that redirect to dashboard if already authenticated
 const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+  
+  // If user is already logged in, redirect them away from login/register
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
   return children;
 };
 
@@ -35,86 +56,107 @@ function AppContent() {
 
   return (
     <div className="App">
+      {/* Show header to everyone */}
       <Header />
       
-      <main className="container">
-        {/* Show navigation to everyone, but it can adapt based on auth status */}
-        <Navigation />
+      <main className="main-content">
+        {/* Show navigation only to authenticated users */}
+        {user && <Navigation />}
         
-        <Routes>
-          {/* Redirect root to dashboard - everyone can see dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Public routes */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <PublicRoute>
-                <Dashboard />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/login" 
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/register" 
-            element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } 
-          />
-          
-          {/* Protected routes - only for logged in users */}
-          <Route 
-            path="/reports" 
-            element={
-              <ProtectedRoute>
-                <ReportList />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/reports/:id" 
-            element={
-              <ProtectedRoute>
-                <ReportView />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/complaints" 
-            element={
-              <ProtectedRoute>
-                <ComplaintList />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/monitoring" 
-            element={
-              <ProtectedRoute>
-                <MonitoringView />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/courses" 
-            element={
-              <ProtectedRoute>
-                <CourseList />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
+        <div className="content-wrapper">
+          <Routes>
+            {/* Redirect root based on auth status */}
+            <Route 
+              path="/" 
+              element={
+                user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+              } 
+            />
+            
+            {/* Public routes - redirect to dashboard if already authenticated */}
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/register" 
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              } 
+            />
+            
+            {/* Protected routes - require authentication */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/reports" 
+              element={
+                <ProtectedRoute>
+                  <ReportList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/reports/:id" 
+              element={
+                <ProtectedRoute>
+                  <ReportView />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/complaints" 
+              element={
+                <ProtectedRoute>
+                  <ComplaintList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/monitoring" 
+              element={
+                <ProtectedRoute>
+                  <MonitoringView />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/courses" 
+              element={
+                <ProtectedRoute>
+                  <CourseList />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Catch all route - 404 page */}
+            <Route 
+              path="*" 
+              element={
+                <div className="not-found">
+                  <h2>404 - Page Not Found</h2>
+                  <p>The page you're looking for doesn't exist.</p>
+                  <a href="/dashboard">Go to Dashboard</a>
+                </div>
+              } 
+            />
+          </Routes>
+        </div>
       </main>
       
+      {/* Show footer to everyone */}
       <Footer />
     </div>
   );
