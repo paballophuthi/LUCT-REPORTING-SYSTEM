@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../../api/api'; // ✅ import api directly
+import { registerUser } from '../../services/api'; // ✅ Fixed import path
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -43,6 +43,8 @@ const Register = () => {
     const result = await registerUser(submitData);
 
     if (result.success) {
+      localStorage.setItem('token', result.data.token);
+      localStorage.setItem('user', JSON.stringify(result.data.user));
       navigate('/dashboard');
     } else {
       setError(result.error);
@@ -60,25 +62,49 @@ const Register = () => {
         {/* Full Name */}
         <div className="form-group">
           <label className="form-label">Full Name</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+          <input 
+            type="text" 
+            name="name" 
+            value={formData.name} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         {/* Email */}
         <div className="form-group">
           <label className="form-label">Email</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          <input 
+            type="email" 
+            name="email" 
+            value={formData.email} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         {/* Password */}
         <div className="form-group">
           <label className="form-label">Password</label>
-          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+          <input 
+            type="password" 
+            name="password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         {/* Confirm Password */}
         <div className="form-group">
           <label className="form-label">Confirm Password</label>
-          <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
+          <input 
+            type="password" 
+            name="confirmPassword" 
+            value={formData.confirmPassword} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         {/* Role */}
@@ -106,13 +132,25 @@ const Register = () => {
         {/* Program */}
         <div className="form-group">
           <label className="form-label">Program</label>
-          <input type="text" name="program" value={formData.program} onChange={handleChange} />
+          <input 
+            type="text" 
+            name="program" 
+            value={formData.program} 
+            onChange={handleChange} 
+            placeholder="e.g., BSc Computer Science"
+          />
         </div>
 
         {/* Class ID */}
         <div className="form-group">
           <label className="form-label">Class ID</label>
-          <input type="text" name="class_id" value={formData.class_id} onChange={handleChange} />
+          <input 
+            type="text" 
+            name="class_id" 
+            value={formData.class_id} 
+            onChange={handleChange} 
+            placeholder="e.g., CS2024A"
+          />
         </div>
 
         <button type="submit" disabled={loading}>

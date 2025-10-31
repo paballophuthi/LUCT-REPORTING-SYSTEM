@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../../api/api'; // ✅ import api directly
+import { loginUser } from '../../services/api'; // ✅ Fixed import path
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -18,6 +18,8 @@ const Login = () => {
     const result = await loginUser(formData);
 
     if (result.success) {
+      localStorage.setItem('token', result.data.token);
+      localStorage.setItem('user', JSON.stringify(result.data.user));
       navigate('/dashboard');
     } else {
       setError(result.error);
@@ -34,12 +36,24 @@ const Login = () => {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Email</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          <input 
+            type="email" 
+            name="email" 
+            value={formData.email} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         <div className="form-group">
           <label>Password</label>
-          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+          <input 
+            type="password" 
+            name="password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            required 
+          />
         </div>
 
         <button type="submit" disabled={loading}>
