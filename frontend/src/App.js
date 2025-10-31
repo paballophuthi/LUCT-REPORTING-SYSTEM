@@ -71,7 +71,7 @@ function AppContent() {
             {/* Public routes */}
             <Route 
               path="/dashboard" 
-              element={<Dashboard />}  {/* ✅ Dashboard is PUBLIC */}
+              element={<Dashboard />} 
             />
             <Route 
               path="/login" 
