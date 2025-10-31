@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-// 🌍 Determine base URL dynamically
+// 🌍 Determine the base URL dynamically
 const API_BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://luct-reporting-system-ryh2.onrender.com' // Direct backend URL
-    : 'http://localhost:5000'; // Local backend
+  process.env.REACT_APP_API_BASE_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://luct-reporting-system-ryh2.onrender.com' // ✅ your backend URL (no /api here)
+    : 'http://localhost:5000');
 
 // 🧩 Create axios instance
 const api = axios.create({
@@ -12,62 +13,21 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Important for CORS with credentials
 });
 
-// 🔐 Add JWT token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// 🩺 Optional: Check if backend is reachable (for debugging)
+api.get('/health')
+  .then(() => console.log('✅ Backend connected at:', API_BASE_URL))
+  .catch((err) => console.error('❌ Backend connection failed:', err.message));
 
-// ⚡ Handle responses and errors globally
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const status = error.response?.status;
+// 🧠 Auth endpoints - FIXED: removed /api/auth prefix
+export const loginUser = (credentials) => api.post('/login', credentials);
+export const registerUser = (data) => api.post('/register', data);
 
-    // Unauthorized → redirect to login
-    if (status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
+// 🩺 Health check endpoint
+export const checkHealth = () => api.get('/health');
 
-    // Not Found → log helpful message
-    if (status === 404) {
-      console.error(
-        `[API 404] Endpoint not found: ${error.config?.baseURL}${error.config?.url}`
-      );
-      console.error('[API 404] Full error:', error.response?.data);
-    }
-
-    // Server errors
-    if (status >= 500) {
-      console.error(`[API ${status}] Server error:`, error.message);
-    }
-
-    return Promise.reject(error);
-  }
-);
-
-// Test connection on startup
-export const testConnection = async () => {
-  try {
-    const response = await api.get('/health');
-    console.log('✅ Backend connection successful:', response.data);
-    return true;
-  } catch (error) {
-    console.error('❌ Backend connection failed:', error.message);
-    return false;
-  }
-};
+// 🐞 Debug endpoint (optional)
+export const getRoutes = () => api.get('/api/debug/routes');
 
 export default api;
-
