@@ -10,32 +10,42 @@ dotenv.config();
 // 🚀 Initialize Express app
 const app = express();
 
-// 🌍 CORS Configuration - Updated with your frontend URL
+// 🌍 CORS Configuration - Production Ready
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://luct-reporting-system-1-l1xd.onrender.com', // Your frontend
-  'https://luct-reporting-system-ryh2.onrender.com'   // Your backend (for testing)
+  'https://luct-reporting-system-1-l1xd.onrender.com',
+  'https://luct-reporting-system-2-52qe.onrender.com',
+  'https://luct-reporting-system-ryh2.onrender.com'
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        console.log('✅ CORS allowed for:', origin);
-        callback(null, true);
-      } else {
-        console.log('❌ CORS blocked for:', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-  })
-);
+// Handle preflight requests first
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.status(204).send();
+});
+
+// Main CORS middleware
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Allow Postman / server-to-server
+    if (allowedOrigins.includes(origin)) {
+      console.log('✅ CORS allowed for:', origin);
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked for:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
 // 📦 Middleware
 app.use(express.json({ limit: '10mb' }));
@@ -54,6 +64,7 @@ app.use(express.urlencoded({ extended: true }));
 })();
 
 // 🧭 API Routes
+// ⚠️ Updated: Mount auth routes at /api/auth
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/reports', require('./routes/reports'));
@@ -84,7 +95,7 @@ app.get('/', (req, res) => {
 });
 
 // 🩺 Health Check Route
-app.get('/health', async (req, res) => {
+app.get('/api/health', async (req, res) => {
   try {
     await pool.query('SELECT 1');
     res.json({
@@ -146,7 +157,7 @@ app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
     message: `The requested route ${req.originalUrl} does not exist on this server`,
-    availableRoutes: ['/', '/health', '/api']
+    availableRoutes: ['/', '/api']
   });
 });
 
@@ -176,8 +187,8 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📊 Database URL: ${process.env.DATABASE_URL ? 'Loaded ✅' : 'Missing ⚠️'}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 Base API: http://localhost:${PORT}/api`);
-  console.log(`🌍 Frontend URL: https://luct-reporting-system-1-l1xd.onrender.com`);
-  console.log(`🔧 Backend URL: https://luct-reporting-system-ryh2.onrender.com`);
+  console.log(`🌍 Allowed Frontend URLs:`);
+  allowedOrigins.forEach(origin => console.log(`   - ${origin}`));
   console.log('-----------------------------------------');
 });
 
