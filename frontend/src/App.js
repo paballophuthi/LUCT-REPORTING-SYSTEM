@@ -65,15 +65,14 @@ function AppContent() {
         
         <div className="content-wrapper">
           <Routes>
-            {/* Redirect root based on auth status */}
-            <Route 
-              path="/" 
-              element={
-                user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-              } 
-            />
+            {/* Redirect root to dashboard - everyone can see dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
-            {/* Public routes - redirect to dashboard if already authenticated */}
+            {/* Public routes */}
+            <Route 
+              path="/dashboard" 
+              element={<Dashboard />}  {/* ✅ Dashboard is PUBLIC */}
+            />
             <Route 
               path="/login" 
               element={
@@ -91,15 +90,7 @@ function AppContent() {
               } 
             />
             
-            {/* Protected routes - require authentication */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
+            {/* Protected routes - only for logged in users */}
             <Route 
               path="/reports" 
               element={
