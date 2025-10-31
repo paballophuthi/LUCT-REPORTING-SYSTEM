@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { registerUser } from '../../api/api'; // ✅ import api directly
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,15 +15,10 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -45,7 +40,7 @@ const Register = () => {
 
     const { confirmPassword, ...submitData } = formData;
 
-    const result = await register(submitData);
+    const result = await registerUser(submitData);
 
     if (result.success) {
       navigate('/dashboard');
@@ -60,65 +55,36 @@ const Register = () => {
     <div className="card">
       <h2>Register for Reporting System</h2>
       {error && <div className="error-message">{error}</div>}
-      
+
       <form onSubmit={handleSubmit}>
+        {/* Full Name */}
         <div className="form-group">
           <label className="form-label">Full Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="form-input"
-            required
-          />
+          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
         </div>
 
+        {/* Email */}
         <div className="form-group">
           <label className="form-label">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="form-input"
-            required
-          />
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
         </div>
 
+        {/* Password */}
         <div className="form-group">
           <label className="form-label">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="form-input"
-            required
-          />
+          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
         </div>
 
+        {/* Confirm Password */}
         <div className="form-group">
           <label className="form-label">Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="form-input"
-            required
-          />
+          <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
         </div>
 
+        {/* Role */}
         <div className="form-group">
           <label className="form-label">Role</label>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="form-input"
-            required
-          >
+          <select name="role" value={formData.role} onChange={handleChange} required>
             <option value="student">Class Representative</option>
             <option value="lecturer">Lecturer</option>
             <option value="prl">Principal Lecturer (PRL)</option>
@@ -127,57 +93,34 @@ const Register = () => {
           </select>
         </div>
 
+        {/* Faculty */}
         <div className="form-group">
           <label className="form-label">Faculty</label>
-          <select
-            name="faculty"
-            value={formData.faculty}
-            onChange={handleChange}
-            className="form-input"
-            required
-          >
-            <option value="FICT">FICT - Information Communication Technology</option>
-            <option value="FBMG">FBMG - Business Management and Governance</option>
-            <option value="FABE">FABE - Architecture and Built Environment</option>
+          <select name="faculty" value={formData.faculty} onChange={handleChange} required>
+            <option value="FICT">FICT - ICT</option>
+            <option value="FBMG">FBMG - Business</option>
+            <option value="FABE">FABE - Architecture</option>
           </select>
         </div>
 
+        {/* Program */}
         <div className="form-group">
           <label className="form-label">Program</label>
-          <input
-            type="text"
-            name="program"
-            value={formData.program}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="e.g., Diploma in Information Technology"
-          />
+          <input type="text" name="program" value={formData.program} onChange={handleChange} />
         </div>
 
+        {/* Class ID */}
         <div className="form-group">
           <label className="form-label">Class ID</label>
-          <input
-            type="text"
-            name="class_id"
-            value={formData.class_id}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="e.g., DIT2023A"
-          />
+          <input type="text" name="class_id" value={formData.class_id} onChange={handleChange} />
         </div>
 
-        <button 
-          type="submit" 
-          className="btn btn-primary"
-          disabled={loading}
-        >
+        <button type="submit" disabled={loading}>
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
 
-      <p style={{ marginTop: '1rem', color: '#ccc' }}>
-        Already have an account? <a href="/login" style={{ color: '#fff' }}>Login here</a>
-      </p>
+      <p>Already have an account? <a href="/login">Login here</a></p>
     </div>
   );
 };

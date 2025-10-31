@@ -15,19 +15,33 @@ const api = axios.create({
   },
 });
 
-// 🩺 Optional: Check backend connection
-api.get('/health')
-  .then(() => console.log('✅ Backend connected at:', API_BASE_URL))
-  .catch((err) => console.error('❌ Backend connection failed:', err.message));
-
 // 🧠 Auth endpoints
-export const loginUser = (credentials) => api.post('/auth/login', credentials);
-export const registerUser = (data) => api.post('/auth/register', data);
+export const loginUser = async (credentials) => {
+  try {
+    const res = await api.post('/auth/login', credentials);
+    return { success: true, data: res.data };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.error || err.message };
+  }
+};
 
-// 🩺 Health check endpoint
-export const checkHealth = () => api.get('/health');
+export const registerUser = async (data) => {
+  try {
+    const res = await api.post('/auth/register', data);
+    return { success: true, data: res.data };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.error || err.message };
+  }
+};
 
-// 🐞 Debug endpoint (optional)
-export const getRoutes = () => api.get('/debug/routes');
+// 🩺 Health check
+export const checkHealth = async () => {
+  try {
+    const res = await api.get('/health');
+    return { success: true, data: res.data };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.error || err.message };
+  }
+};
 
 export default api;
