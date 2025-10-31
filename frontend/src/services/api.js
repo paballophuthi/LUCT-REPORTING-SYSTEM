@@ -3,8 +3,8 @@ import axios from 'axios';
 // 🌍 Determine base URL dynamically
 const API_BASE_URL =
   process.env.NODE_ENV === 'production'
-    ? 'https://luct-reporting-system-ryh2.onrender.com/api' // Direct backend URL
-    : 'http://localhost:5000/api'; // Local backend
+    ? 'https://luct-reporting-system-ryh2.onrender.com' // Direct backend URL
+    : 'http://localhost:5000'; // Local backend
 
 // 🧩 Create axios instance
 const api = axios.create({
@@ -70,3 +70,4 @@ export const testConnection = async () => {
 };
 
 export default api;
+
